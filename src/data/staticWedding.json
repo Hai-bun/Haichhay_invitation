@@ -1,0 +1,137 @@
+{
+  "profile": {
+    "id": "default-wedding",
+    "bride_name": "CHEM VANCHHAY",
+    "groom_name": "HEANG BUNHAI",
+    "bride_parent_names": "Mr.BOT SOMPANG & Mrs. CHAN NHANH",
+    "groom_parent_names": "Mr.HEANG VANNA& Mrs. NOUCH THIM",
+    "theme": "luxury",
+    "template": "aurora",
+    "background_image_url": "",
+    "primary_color": "#c9a87c",
+    "secondary_color": "#f5e6d3",
+    "accent_color": "#d4a574",
+    "heading_font": "AKbalthom Kbach Regular",
+    "body_font": "Lato",
+    "show_countdown": true,
+    "social_links": {
+      "facebook": "https://www.facebook.com/share/17NafGAGGS/",
+      "telegram": "https://t.me/Bunhai_Heang",
+      "whatsapp": "",
+      "instagram": ""
+    },
+    "welcome_popup": {
+      "story": {
+        "text": "From the moment our paths first crossed, we knew our hearts were meant to walk together. Through laughter, small adventures, and quiet moments, our love grew stronger each day. Now, surrounded by the people we cherish most, we can't wait to begin this new chapter as one.",
+        "title": "Our Love Story",
+        "enabled": false
+      },
+      "enabled": false,
+      "message": "We are delighted to share this special moment with you. Please scroll down to view our wedding invitation.",
+      "nameFont": "AKbalthom Kbach Regular",
+      "navBrand": {
+        "bride": "CHHAY",
+        "brideKh": "ឆាយ",
+        "groomKh": "ហៃ"
+      },
+      "schedule": {
+        "items": [
+          {
+            "id": "s1",
+            "time": "06:30",
+            "title": "Gathering with family and friends",
+            "titleKh": "ជួបជុំបងប្អូនញ្ញាតិមិត្ត",
+            "description": "Preparing fruit for the ceremonial procession of offerings.",
+            "descriptionKh": "រៀបចំផ្លែឈើសម្រាប់ហែជំនួន"
+          },
+          {
+            "id": "s2",
+            "time": "07:00",
+            "title": "Bridal Procession Ceremony",
+            "titleKh": "កម្មវិធីហែជំនួន",
+            "description": "Bridal Procession Ceremony",
+            "descriptionKh": "កម្មវិធីហែជំនួន"
+          },
+          {
+            "id": "s3",
+            "time": "23:00",
+            "title": "Hair-cutting ceremony for bestowing blessings",
+            "titleKh": "ពិធីកាត់សក់បង្កក់សិរី",
+            "description": "The wedding ceremony is a traditional Khmer event that includes rituals such as the ceremonial hair-cutting (symbolizing the cleansing of the past and the start of a new life) and the blessing of the newlyweds to bestow good fortune and prosperity upon them.",
+            "descriptionKh": "ពិធីកាត់សក់បង្កក់សិរី គឺជាពិធីប្រពៃណីខ្មែរមួយដ៏មានសារៈសំខាន់នៅក្នុងពិធីអាពាហ៍ពិពាហ៍ ដើម្បីជម្រះឧបទ្រពចង្រៃ កោរសក់ចង្រៃចេញ និងនាំមកនូវសិរីសួស្តី សេចក្តីសុខសប្បាយដល់គូស្វាមីភរិយាថ្មី។"
+          },
+          {
+            "id": "hp4vppnd4ki",
+            "time": "17:00",
+            "title": "Reception Dinner",
+            "titleKh": "អាហារពេលល្ងាច",
+            "description": "Join us for dinner, music and celebration",
+            "descriptionKh": "សូមអញ្ជើញចូលរួមជាមួយយើងសម្រាប់អាហារពេលល្ងាច តន្ត្រី និងការអបអរសាទរ។"
+          }
+        ],
+        "title": "Wedding Day Schedule",
+        "enabled": true
+      },
+      "textColors": {
+        "names": "#ffda75"
+      },
+      "customFonts": [
+        {
+          "family": "AKbalthom Kbach Regular",
+          "url": "/fonts/AKbalthom_Kbach_Regular_ttf.ttf"
+        }
+      ],
+      "eventTitleKh": "ទីតាំងពិធីមង្គលការ",
+      "galleryLayout": "mosaic",
+      "monogramImage": "",
+      "sectionImages": {
+        "hero": "/images/gallery/DSC_8457_jpg.jpg",
+        "seal": "/images/gallery/DSC_8428_jpg.jpg",
+        "polaroid": "/images/gallery/SOR_3065_jpg.jpg"
+      },
+      "showHeaderNav": true,
+      "eventAddressKh": ""
+    },
+    "animations": {
+      "speed": "fast",
+      "enabled": true,
+      "heartbeat": true,
+      "fadeInOnScroll": true,
+      "floatingPetals": true,
+      "photoHoverZoom": true,
+      "heroFloatIndicator": true
+    },
+    "event_title": "Event Wedding Location",
+    "event_address": "Anglong veng, Cambodia",
+    "event_map_url": "https://www.google.com/maps/place/Chem+Vanchhay+house/@14.2558177,103.9932376,1146m/data=!3m1!1e3!4m6!3m5!1s0x3110c12c548f1065:0x2015c98917013185!8m2!3d14.2558125!4d103.9958125!16s%2Fg%2F11ypjsz6w7!5m1!1e4?entry=ttu&g_ep=EgoyMDI2MDcyMi4wIKXMDSoASAFQAw%3D%3D",
+    "gift_enabled": true,
+    "created_at": "2026-07-24T04:03:21.316341+00:00",
+    "updated_at": "2026-07-24T04:03:21.316341+00:00",
+    "wedding_date_time": "2026-12-20T17:00:00",
+    "store_name_kh": null,
+    "bride_name_kh": "ចែម វ៉ាន់ឆាយ",
+    "groom_name_kh": "ហ៊ាង ប៊ុនហៃ",
+    "groom_parent_names_kh": "លោក ហ៊ាង វណ្ណា និង អ្នកស្រី​ ណូច​ ធីម",
+    "bride_parent_names_kh": "លោក ប៊ុត​ សំផង និង អ្នកស្រី​ ចាន់ ញ៉ាញ់"
+  },
+  "photos": [
+    "/images/gallery/DSC_8457_jpg.jpg",
+    "/images/gallery/1000017030_jpg.jpg",
+    "/images/gallery/SOR_2991_jpg.jpg",
+    "/images/gallery/DSC_8212_jpg.jpg",
+    "/images/gallery/DSC_8428_jpg.jpg",
+    "/images/gallery/01-DSC_8428_jpg.jpg",
+    "/images/gallery/DSC_8187_jpg.jpg",
+    "/images/gallery/SOR_2954_jpg.jpg",
+    "/images/gallery/SOR_2997_jpg.jpg",
+    "/images/gallery/SOR_3065_jpg.jpg",
+    "/images/gallery/SOR_3076_jpg.jpg",
+    "/images/gallery/SOR_3067_jpg.jpg",
+    "/images/gallery/DSC_8225_jpg.jpg",
+    "/images/gallery/DSC_8242_jpg.jpg",
+    "/images/gallery/SOR_3049_jpg.jpg",
+    "/images/gallery/SOR_3056_jpg.jpg"
+  ],
+  "khqrImage": "/images/khqr.jpg",
+  "giftEnabled": true
+}
