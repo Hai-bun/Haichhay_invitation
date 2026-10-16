@@ -5,7 +5,6 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Heart, Send, Check } from "lucide-react";
 import { addRSVPResponse, sendRSVPToTelegram } from "@/lib/weddingStore";
-import { GuestWishes } from "./GuestWishes";
 import { toast } from "sonner";
 import { getTranslations, Language, getStoredLanguage } from "@/lib/i18n";
 
@@ -60,7 +59,6 @@ export const RSVPSection = ({
             {t.rsvpSuccess}
           </h2>
           <p className="text-muted-foreground">{t.rsvpSuccessMessage}</p>
-          <GuestWishes language={lang} />
         </div>
       </section>
     );

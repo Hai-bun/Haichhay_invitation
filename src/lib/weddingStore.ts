@@ -1,5 +1,3 @@
-import { supabase } from "@/integrations/supabase/client";
-import type { Database } from "@/integrations/supabase/types";
 import staticWedding from "@/data/staticWedding.json";
 
 export type TemplateType =
@@ -204,7 +202,6 @@ export interface RSVPResponse {
   submittedAt: string;
 }
 
-const DEFAULT_WEDDING_ID = "default-wedding";
 const DEFAULT_WEDDING_DATA: WeddingData = {
   groomName: "Sokha Virak",
   groomNameKh: "",
@@ -304,126 +301,10 @@ const DEFAULT_WEDDING_DATA: WeddingData = {
     speed: "normal",
   },
 };
-
-const getInviteUrl = (guestId: string): string =>
-  typeof window !== "undefined"
-    ? `${window.location.origin}/invite/${guestId}`
-    : `/invite/${guestId}`;
-
-const mapGuestRowToGuest = (
-  row: Database["public"]["Tables"]["guest_invitations"]["Row"],
-): Guest => ({
-  id: row.id,
-  name: row.guest_name,
-  inviteUrl: getInviteUrl(row.id),
-  createdAt: row.created_at ?? new Date().toISOString(),
-});
-
-const mapGuestRowToResponse = (
-  row: Database["public"]["Tables"]["guest_invitations"]["Row"],
-): RSVPResponse => ({
-  id: row.id,
-  guestName: row.guest_name,
-  attending: row.rsvp_status === "attending",
-  message: row.blessing_message ?? "",
-  submittedAt: row.updated_at ?? row.created_at ?? new Date().toISOString(),
-});
-
-const getCurrentUserId = async (): Promise<string | null> => {
-  const { data } = await supabase.auth.getSession();
-  return data?.session?.user?.id ?? null;
-};
-
-const ensureUserProfileExists = async (userId: string | null) => {
-  if (!userId) return true;
-
-  const { data, error } = await supabase
-    .from("profiles")
-    .select("id")
-    .eq("id", userId)
-    .single();
-
-  if (data) return true;
-
-  if (error && error.code !== "PGRST116") {
-    console.error("Failed to check user profile existence:", error);
-    return false;
-  }
-
-  const { error: insertError } = await supabase.from("profiles").insert({
-    id: userId,
-    email: null,
-    full_name: null,
-  });
-
-  if (insertError) {
-    console.error("Failed to create missing user profile:", insertError);
-    return false;
-  }
-
-  return true;
-};
-
-const buildWeddingProfileRow = (
-  weddingData: WeddingData,
-  userId: string | null = null,
-): Database["public"]["Tables"]["wedding_profiles"]["Insert"] => ({
-  id: DEFAULT_WEDDING_ID,
-  user_id: userId,
-  bride_name: weddingData.brideName,
-  bride_name_kh: weddingData.brideNameKh,
-  groom_name: weddingData.groomName,
-  groom_name_kh: weddingData.groomNameKh,
-  bride_parent_names: weddingData.brideParents,
-  groom_parent_names: weddingData.groomParents,
-  bride_parent_names_kh: weddingData.brideParentsKh,
-  groom_parent_names_kh: weddingData.groomParentsKh,
-  // Store the exact wall-clock date & time the couple entered (no timezone
-  // suffix). The column is `timestamp without time zone`, so this is stored
-  // literally and read back verbatim — the time never shifts per device.
-  wedding_date_time: `${weddingData.weddingDate}T${weddingData.weddingTime}:00`,
-  theme: weddingData.theme,
-  template: weddingData.template,
-  background_image_url: weddingData.backgroundImage,
-  primary_color: weddingData.primaryColor,
-  secondary_color: weddingData.secondaryColor,
-  accent_color: weddingData.accentColor,
-  heading_font: weddingData.headingFont,
-  body_font: weddingData.bodyFont,
-  show_countdown: weddingData.showCountdown,
-  social_links: weddingData.socialLinks,
-  // Credentials live in the owner-only telegram_secrets table, never here.
-  telegram_config: {},
-  // Story & Schedule are packed into the existing welcome_popup jsonb column so
-  // no new database columns (migration) are required to persist them.
-  welcome_popup: {
-    enabled: weddingData.welcomePopupEnabled,
-    message: weddingData.welcomePopupMessage,
-    story: weddingData.story,
-    schedule: weddingData.schedule,
-    nameFont: weddingData.nameFont,
-    customFonts: weddingData.customFonts,
-    galleryLayout: weddingData.galleryLayout,
-    showHeaderNav: weddingData.showHeaderNav,
-    textColors: weddingData.textColors,
-    sectionImages: weddingData.sectionImages,
-    navBrand: weddingData.navBrand,
-    monogramImage: weddingData.monogramImage,
-    eventTitleKh: weddingData.eventTitleKh,
-    eventAddressKh: weddingData.eventAddressKh,
-  },
-  animations: weddingData.animations,
-  event_title: weddingData.eventTitle,
-  event_address: weddingData.eventAddress,
-  event_map_url: weddingData.eventMapUrl,
-  gift_enabled: weddingData.giftEnabled,
-});
-
 const mapProfileToWeddingData = (
-  profile: Database["public"]["Tables"]["wedding_profiles"]["Row"],
-  guests: Database["public"]["Tables"]["guest_invitations"]["Row"][],
-  photos: Database["public"]["Tables"]["photo_gallery"]["Row"][],
-  gift: Database["public"]["Tables"]["wedding_gifts"]["Row"] | null,
+  profile: ProfileRow,
+    photos: { image_url: string }[],
+  gift: { khqr_image_url: string; enabled: boolean } | null,
 ): WeddingData => {
   // wedding_date_time comes back as a naive ISO-ish string, e.g.
   // "2026-12-20T16:00:00" (the column is `timestamp without time zone`) or
@@ -505,10 +386,8 @@ const mapProfileToWeddingData = (
     photos: photos.map((photo) => photo.image_url),
     khqrImage: gift?.khqr_image_url ?? DEFAULT_WEDDING_DATA.khqrImage,
     giftEnabled: gift?.enabled ?? DEFAULT_WEDDING_DATA.giftEnabled,
-    guests: guests.map(mapGuestRowToGuest),
-    rsvpResponses: guests
-      .filter((guest) => guest.rsvp_status !== "pending")
-      .map(mapGuestRowToResponse),
+    guests: [],
+    rsvpResponses: [],
     socialLinks: profile.social_links ?? DEFAULT_WEDDING_DATA.socialLinks,
     telegramConfig: DEFAULT_WEDDING_DATA.telegramConfig,
     welcomePopupEnabled:
@@ -527,305 +406,48 @@ const mapProfileToWeddingData = (
   };
 };
 
-const ensureWeddingProfile = async () => {
-  const { data, error } = await supabase
-    .from("wedding_profiles")
-    .select("*")
-    .eq("id", DEFAULT_WEDDING_ID)
-    .single();
-
-  if (error && error.code !== "PGRST116") {
-    console.error("Failed to load wedding profile:", error);
-  }
-
-  if (data) {
-    return data;
-  }
-
-  const userId = await getCurrentUserId();
-  const { data: inserted, error: insertError } = await supabase
-    .from("wedding_profiles")
-    .insert(buildWeddingProfileRow(DEFAULT_WEDDING_DATA, userId))
-    .select()
-    .single();
-
-  if (insertError) {
-    console.error("Failed to create default wedding profile:", insertError);
-    return null;
-  }
-
-  return inserted;
-};
-
-const getWeddingRelationalData = async () => {
-  const [guestRes, photoRes, giftRes] = await Promise.all([
-    supabase
-      .from("guest_invitations")
-      .select("*")
-      .eq("wedding_id", DEFAULT_WEDDING_ID)
-      .order("created_at", { ascending: true }),
-    supabase
-      .from("photo_gallery")
-      .select("*")
-      .eq("wedding_id", DEFAULT_WEDDING_ID)
-      .order("display_order", { ascending: true }),
-    supabase
-      .from("wedding_gifts")
-      .select("*")
-      .eq("wedding_id", DEFAULT_WEDDING_ID)
-      .limit(1)
-      .single(),
-  ]);
-
-  if (guestRes.error) {
-    console.error("Failed to load guest invitations:", guestRes.error);
-  }
-
-  if (photoRes.error) {
-    console.error("Failed to load photo gallery:", photoRes.error);
-  }
-
-  if (giftRes.error && giftRes.error.code !== "PGRST116") {
-    console.error("Failed to load wedding gift settings:", giftRes.error);
-  }
-
-  return {
-    guests: guestRes.data ?? [],
-    photos: photoRes.data ?? [],
-    gift: giftRes.data ?? null,
-  };
-};
+// Loose shape of the profile block in src/data/staticWedding.json.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type ProfileRow = Record<string, any>;
 
 // The invitation content (names, schedule, photos, fonts, KHQR) is fixed in
-// src/data/staticWedding.json with every image served from /public, so nothing
-// here depends on the database. Guests/RSVPs are still looked up per guest ID.
+// src/data/staticWedding.json with every image served from /public, so the
+// site needs no backend. Edit that file and redeploy to change anything.
 export const getWeddingData = async (): Promise<WeddingData> =>
   mapProfileToWeddingData(
-    staticWedding.profile as unknown as Database["public"]["Tables"]["wedding_profiles"]["Row"],
-    [],
-    staticWedding.photos.map((image_url, i) => ({ image_url, display_order: i }) as Database["public"]["Tables"]["photo_gallery"]["Row"]),
-    { khqr_image_url: staticWedding.khqrImage, enabled: staticWedding.giftEnabled } as Database["public"]["Tables"]["wedding_gifts"]["Row"],
+    staticWedding.profile as unknown as ProfileRow,
+    staticWedding.photos.map((image_url) => ({ image_url })),
+    { khqr_image_url: staticWedding.khqrImage, enabled: staticWedding.giftEnabled },
   );
 
-export const saveWeddingData = async (
-  data: Partial<WeddingData>,
-): Promise<boolean> => {
-  const current = await getWeddingData();
-  const updated = { ...current, ...data };
-  const userId = await getCurrentUserId();
-
-  if (userId) {
-    const profileExists = await ensureUserProfileExists(userId);
-    if (!profileExists) {
-      return false;
-    }
-  }
-
-  const { error: profileError } = await supabase
-    .from("wedding_profiles")
-    .upsert(buildWeddingProfileRow(updated, userId));
-  if (profileError) {
-    console.error("Failed to save wedding profile:", profileError);
-    return false;
-  }
-
-  const giftRow: Database["public"]["Tables"]["wedding_gifts"]["Insert"] = {
-    id: `gift-${DEFAULT_WEDDING_ID}`,
-    wedding_id: DEFAULT_WEDDING_ID,
-    khqr_image_url: updated.khqrImage,
-    enabled: updated.giftEnabled,
-  };
-
-  const { error: giftError } = await supabase
-    .from("wedding_gifts")
-    .upsert(giftRow);
-  if (giftError) {
-    console.error("Failed to save wedding gift settings:", giftError);
-    return false;
-  }
-
-  const { data: existingPhotos, error: existingPhotoError } = await supabase
-    .from("photo_gallery")
-    .select("id,image_url")
-    .eq("wedding_id", DEFAULT_WEDDING_ID);
-
-  if (existingPhotoError) {
-    console.error(
-      "Failed to load existing photos for sync:",
-      existingPhotoError,
-    );
-    return false;
-  }
-
-  const existingPhotoUrls = (existingPhotos ?? []).map(
-    (photo) => photo.image_url,
-  );
-  const addedPhotoUrls = updated.photos.filter(
-    (url) => !existingPhotoUrls.includes(url),
-  );
-  const removedPhotoIds = (existingPhotos ?? [])
-    .filter((photo) => !updated.photos.includes(photo.image_url))
-    .map((photo) => photo.id);
-
-  if (removedPhotoIds.length > 0) {
-    const { error: deleteError } = await supabase
-      .from("photo_gallery")
-      .delete()
-      .in("id", removedPhotoIds);
-    if (deleteError) {
-      console.error("Failed to delete removed photos:", deleteError);
-      return false;
-    }
-  }
-
-  if (addedPhotoUrls.length > 0) {
-    const photoRows = addedPhotoUrls.map((image_url, index) => ({
-      id: generateGuestId(),
-      wedding_id: DEFAULT_WEDDING_ID,
-      image_url,
-      display_order: index,
-    }));
-
-    const { error: insertError } = await supabase
-      .from("photo_gallery")
-      .insert(photoRows);
-    if (insertError) {
-      console.error("Failed to insert new photos:", insertError);
-      return false;
-    }
-  }
-
-  return true;
-};
-
-export const generateGuestId = (): string =>
-  Math.random().toString(36).substring(2, 15);
-
-export const addGuest = async (name: string): Promise<Guest | null> => {
-  const id = generateGuestId();
-  const guest = {
-    id,
-    wedding_id: DEFAULT_WEDDING_ID,
-    guest_name: name,
-    invitation_token: generateGuestId(),
-    invitation_status: "sent" as const,
-    rsvp_status: "pending" as const,
-  };
-
-  const { data, error } = await supabase
-    .from("guest_invitations")
-    .insert(guest)
-    .select()
-    .single();
-  if (error || !data) {
-    console.error("Failed to add guest:", error);
-    return null;
-  }
-
-  return mapGuestRowToGuest(data);
-};
-
+// Guests have no database record: the link carries the name,
+// e.g. /wedding/Sok%20Dara greets "Sok Dara".
 export const getGuestById = async (id: string): Promise<Guest | null> => {
-  const { data, error } = await supabase
-    .from("guest_invitations")
-    .select("*")
-    .eq("id", id)
-    .single();
-
-  if (error) {
-    console.error("Failed to fetch guest by id:", error);
-    return null;
+  let name = id;
+  try {
+    name = decodeURIComponent(id);
+  } catch {
+    /* keep the raw segment */
   }
-
-  return mapGuestRowToGuest(data);
+  name = name.trim();
+  if (!name) return null;
+  return {
+    id,
+    name,
+    inviteUrl: typeof window !== "undefined" ? `${window.location.origin}/invite/${id}` : `/invite/${id}`,
+    createdAt: "",
+  };
 };
 
-export const deleteGuest = async (id: string): Promise<boolean> => {
-  const { error } = await supabase
-    .from("guest_invitations")
-    .delete()
-    .eq("id", id);
-  if (error) {
-    console.error("Failed to delete guest:", error);
-    return false;
-  }
-  return true;
-};
-
+// RSVPs are not stored; the response is only forwarded to Telegram (if configured).
 export const addRSVPResponse = async (
-  guestId: string | undefined,
-  guestName: string,
-  attending: boolean,
-  message: string,
-): Promise<boolean> => {
-  const status = attending ? "attending" : "not_attending";
-  const token = generateGuestId();
+  _guestId: string | undefined,
+  _guestName: string,
+  _attending: boolean,
+  _message: string,
+): Promise<boolean> => true;
 
-  if (guestId) {
-    const { error } = await supabase
-      .from("guest_invitations")
-      .update({
-        rsvp_status: status,
-        blessing_message: message,
-        invitation_status: "opened",
-      })
-      .eq("id", guestId);
-
-    if (error) {
-      console.error("Failed to update RSVP response:", error);
-      return false;
-    }
-
-    return true;
-  }
-
-  const { error } = await supabase.from("guest_invitations").insert({
-    id: generateGuestId(),
-    wedding_id: DEFAULT_WEDDING_ID,
-    guest_name: guestName,
-    invitation_token: token,
-    invitation_status: "opened" as const,
-    rsvp_status: status as const,
-    blessing_message: message,
-  });
-
-  if (error) {
-    console.error("Failed to insert RSVP response:", error);
-    return false;
-  }
-
-  return true;
-};
-
-export const addPhoto = async (imageUrl: string): Promise<boolean> => {
-  const { error } = await supabase.from("photo_gallery").insert({
-    id: generateGuestId(),
-    wedding_id: DEFAULT_WEDDING_ID,
-    image_url: imageUrl,
-    display_order: 0,
-  });
-  if (error) {
-    console.error("Failed to add photo record:", error);
-    return false;
-  }
-  return true;
-};
-
-export const deletePhotoByUrl = async (imageUrl: string): Promise<boolean> => {
-  const { error } = await supabase
-    .from("photo_gallery")
-    .delete()
-    .match({ wedding_id: DEFAULT_WEDDING_ID, image_url: imageUrl });
-
-  if (error) {
-    console.error("Failed to delete photo record:", error);
-    return false;
-  }
-
-  return true;
-};
-
-// The server reads the bot credentials itself; the browser only reports the RSVP.
+// The server holds the bot credentials (env vars); the browser only reports the RSVP.
 export const sendRSVPToTelegram = async (
   guestName: string,
   attending: boolean,

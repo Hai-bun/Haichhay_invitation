@@ -64,13 +64,13 @@ This project is built with:
 
 Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
 
-## Required environment variables
+## Content and environment variables
 
-Set these Vercel environment variables for Supabase integration:
+The site is fully static: all invitation content lives in `src/data/staticWedding.json` and images in `public/`. Edit, commit and redeploy to change anything. No database or env vars are required.
 
-- `VITE_SUPABASE_URL`
-- `VITE_SUPABASE_PUBLISHABLE_KEY`
-- `VITE_SUPABASE_STORAGE_BUCKET` _(optional; defaults to `wedding-images`)_
+Guest links carry the name: `/wedding/Sok%20Dara` greets "Sok Dara".
+
+Optional, to receive RSVPs in Telegram, set `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` in Vercel.
 
 ## Can I connect a custom domain to my Lovable project?
 
